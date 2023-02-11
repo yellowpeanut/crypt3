@@ -92,7 +92,7 @@ namespace crypt3
             // 
             this.richTextBox3.Location = new System.Drawing.Point(319, 30);
             this.richTextBox3.Name = "richTextBox3";
-            this.richTextBox3.Size = new System.Drawing.Size(187, 279);
+            this.richTextBox3.Size = new System.Drawing.Size(175, 279);
             this.richTextBox3.TabIndex = 5;
             this.richTextBox3.Text = "";
             // 
@@ -174,7 +174,7 @@ namespace crypt3
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(520, 419);
+            this.ClientSize = new System.Drawing.Size(508, 419);
             this.Controls.Add(this.richTextBox4);
             this.Controls.Add(this.label7);
             this.Controls.Add(this.label6);

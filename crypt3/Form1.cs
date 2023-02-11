@@ -14,9 +14,7 @@ namespace crypt3
     public partial class Form1 : Form
     {
         private string fileContent = String.Empty;
-        int bitsPerSymbol = 0;
-        Dictionary<char, int> symbols = new Dictionary<char, int> { };
-        Dictionary<char, int> symbolsTree = new Dictionary<char, int> { };
+        Huffman hfm = null;
 
         public Form1()
         {
@@ -31,11 +29,11 @@ namespace crypt3
             {
                 var fileStream = dialog.OpenFile();
                 fileContent = File.ReadAllText(dialog.FileName);
-                analizeFile(fileContent);
-                label4.Text = $"Initial file size: {getFileSize(fileContent, bitsPerSymbol)} bytes";
+                hfm = new Huffman(fileContent);
+                label4.Text = $"Initial file size: {getFileSize(fileContent, hfm.bitsPerSymbol)} bytes";
                 richTextBox1.Text = fileContent;
-                string text = "Symbol\tFrequency\n";
-                foreach(var symb in symbols)
+                string text = "";
+                foreach(var symb in hfm.SymbolsFrequency)
                 {
                     text += $"{symb.Key}\t{symb.Value}\n";
                 }
@@ -58,10 +56,17 @@ namespace crypt3
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            string compressedFile = huffmanCompress(fileContent);
+            string compressedFile = hfm.Compress(fileContent);
             richTextBox4.Text = compressedFile;
             File.WriteAllText("2.txt", compressedFile);
-            label5.Text = $"Compressed size: {getFileSize(compressedFile, 2)} bytes";
+            label5.Text = $"Compressed size: {getFileSize(compressedFile, 2)/8} bytes";
+
+            string text = "";
+            foreach (var symb in hfm.SymbolsFrequency)
+            {
+                text += $"{symb.Key}\t{symb.Value}\t{hfm.SymbolsCode[symb.Key]}\n";
+            }
+            richTextBox3.Text = text;
         }
 
         //decompress
@@ -74,32 +79,12 @@ namespace crypt3
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            string decompressedFile = huffmanDecompress(compressedFile);
+            if (hfm is null)
+                hfm = new Huffman();
+            string decompressedFile = hfm.Decompress(compressedFile);
             File.WriteAllText("3.txt", decompressedFile);
-            //setPicture(pictureBox2, decompressedFile);
-            label6.Text = $"Decompressed size: {getFileSize(decompressedFile, bitsPerSymbol)} bytes";
-        }
-
-        private string huffmanCompress(string file)
-        {
-            return "";
-        }
-
-        private string huffmanDecompress(string file) 
-        {
-            return "";
-        }
-
-        private void analizeFile(string file)
-        {
-            for (int i = 0; i < file.Length; i++)
-            {
-                if (symbols.ContainsKey(file[i]))
-                    symbols[file[i]] += 1;
-                else
-                    symbols[file[i]] = 1;
-            }
-            bitsPerSymbol = Convert.ToInt32(Math.Ceiling(Math.Log(symbols.Count, 2)));
+            richTextBox2.Text = decompressedFile;
+            label6.Text = $"Decompressed size: {getFileSize(decompressedFile, hfm.bitsPerSymbol)} bytes";
         }
 
         private int getFileSize(string file, int bitsPerSymbol)
