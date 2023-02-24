@@ -13,6 +13,9 @@ namespace crypt3
         public Dictionary<char, int> SymbolsFrequency = new Dictionary<char, int> { };
         public Dictionary<char?, string> SymbolsCode = new Dictionary<char?, string> { };
         public string FileContent = "";
+
+        public int headerSize = 0;
+        public int contentSize = 0;
         public Huffman(string FileContent)
         {
             this.FileContent = FileContent;
@@ -72,14 +75,25 @@ namespace crypt3
 
         private string EncodeText(string file)
         {
-            string text = "";
+            string header = "";
+            string content = "";
 
             foreach (var symb in SymbolsFrequency)
-                text += $"{symb.Key}{symb.Value} ";
-            text += "\n\n";
-            for (int i = 0; i < file.Length; i++)
-                text += SymbolsCode[file[i]];
+                header += $"{symb.Key}{symb.Value} ";
+            header += "\n\n";
 
+            HashSet<char> hs = new HashSet<char> { };
+            for (int i = 0; i < header.Length; i++)
+                hs.Add(header[i]);
+            int bps = Convert.ToInt32(Math.Ceiling(Math.Log(hs.Count, 2)));
+            headerSize = header.Length * bps / 8 + 1;
+
+            for (int i = 0; i < file.Length; i++)
+                content += SymbolsCode[file[i]];
+
+            contentSize = content.Length/8 + 1;
+
+            string text = header + content;
             return text;
         }
 

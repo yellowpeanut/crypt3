@@ -19,6 +19,7 @@ namespace crypt3
         public Form1()
         {
             InitializeComponent();
+            hfm = new Huffman();
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -30,7 +31,13 @@ namespace crypt3
                 var fileStream = dialog.OpenFile();
                 fileContent = File.ReadAllText(dialog.FileName);
                 hfm = new Huffman(fileContent);
-                label4.Text = $"Initial file size: {getFileSize(fileContent, hfm.bitsPerSymbol)} bytes";
+
+                // size considering only used symbols ( binary )
+                //label4.Text = $"Initial file size: {getFileSize(fileContent, hfm.bitsPerSymbol)} bytes";
+                
+                // utf-8 file size
+                label4.Text = $"Initial file size: {getFileSize(fileContent, 8)} bytes";
+                
                 richTextBox1.Text = fileContent;
                 string text = "";
                 foreach(var symb in hfm.SymbolsFrequency)
@@ -59,7 +66,18 @@ namespace crypt3
             string compressedFile = hfm.Compress(fileContent);
             richTextBox4.Text = compressedFile;
             File.WriteAllText("2.txt", compressedFile);
-            label5.Text = $"Compressed size: {getFileSize(compressedFile, 2)/8} bytes";
+
+            // file size considering file as one binary
+/*            HashSet<char> hs = new HashSet<char> { };
+            for (int i = 0; i < compressedFile.Length; i++)
+                hs.Add(compressedFile[i]);
+            int bps = Convert.ToInt32(Math.Ceiling(Math.Log(hs.Count, 2)));
+            int compSize = compressedFile.Length * bps / 8 + 1;
+
+            label5.Text = $"Compressed size: {compSize} bytes";*/
+
+            //file size considering file as two binary files
+            label5.Text = $"Compressed size: {hfm.headerSize + hfm.contentSize} bytes";
 
             string text = "";
             foreach (var symb in hfm.SymbolsFrequency)
@@ -84,7 +102,12 @@ namespace crypt3
             string decompressedFile = hfm.Decompress(compressedFile);
             File.WriteAllText("3.txt", decompressedFile);
             richTextBox2.Text = decompressedFile;
-            label6.Text = $"Decompressed size: {getFileSize(decompressedFile, hfm.bitsPerSymbol)} bytes";
+
+            // size considering only used symbols ( binary )
+            //label6.Text = $"Decompressed size: {getFileSize(decompressedFile, hfm.bitsPerSymbol)} bytes";
+
+            // utf-8 file size
+            label6.Text = $"Decompressed size: {getFileSize(decompressedFile, 8)} bytes";
         }
 
         private int getFileSize(string file, int bitsPerSymbol)
